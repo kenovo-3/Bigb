@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kenovo Video Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://player.vimeo.com/api/player.js"></script> <!-- Vimeo Player API -->
 </head>
 <body>
     <h1>Kenovo Video Dashboard</h1>
 
     <div id="dashboard">
+        <!-- Search Bar -->
+        <input type="text" id="search-bar" placeholder="Search for videos..." oninput="filterVideos()">
         <!-- Dynamic Video Links will appear here -->
     </div>
 
