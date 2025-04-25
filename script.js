@@ -1,8 +1,8 @@
-// Array to store video names and their respective links
+// Array to store video names and their respective YouTube embed URLs
 const videoData = [
     {
-        title: "Super Dragon Ball Movie",
-        link: "https://drive.google.com/uc?export=download&id=1CCs06Ok3qo6k9B-SmgCeJS5950ZsUOot" // The provided Google Drive link
+        title: "sinchan",
+        link: "https://youtu.be/nLF_Lw_pHzo?feature=shared" // YouTube Embed link (use your actual video link)
     }
 ];
 
@@ -18,28 +18,31 @@ videoData.forEach((video, index) => {
     videoList.appendChild(videoItem);
 });
 
-// Load video into the player
+// Load video into the player (YouTube embed)
 function loadVideo(video) {
-    const player = document.getElementById("video-player");
+    const playerContainer = document.getElementById("video-player-container");
     const title = document.getElementById("video-title");
-    player.src = video.link;
+    playerContainer.innerHTML = `<iframe width="560" height="315" src="${video.link}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
     title.textContent = video.title;
 }
 
 // Play the video
 function playVideo() {
-    const player = document.getElementById("video-player");
-    player.play();
+    const iframe = document.querySelector("iframe");
+    const iframeSrc = iframe.src;
+    iframe.src = iframeSrc + "?autoplay=1"; // Append autoplay to the YouTube embed URL
 }
 
 // Pause the video
 function pauseVideo() {
-    const player = document.getElementById("video-player");
-    player.pause();
+    const iframe = document.querySelector("iframe");
+    const iframeSrc = iframe.src;
+    iframe.src = iframeSrc.replace('?autoplay=1', ''); // Remove autoplay to pause
 }
 
 // Skip time in the video (forward or backward by 10 seconds)
 function skip(seconds) {
-    const player = document.getElementById("video-player");
-    player.currentTime += seconds;
+    // YouTube videos don't directly support skipping through JS like this. 
+    // This function might need to use YouTube's API to actually control video time.
+    alert("Skipping time requires YouTube API implementation.");
 }
