@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenovo Video Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Kenovo Video Dashboard</h1>
+
+    <div id="dashboard">
+        <h2>Videos</h2>
+        <ul id="video-list">
+            <!-- List of video names will be dynamically generated here -->
+        </ul>
+    </div>
+
+    <div id="video-container">
+        <h2 id="video-title">Select a video</h2>
+        <video id="video-player" controls>
+            <source src="" type="video/mp4">
+            Your browser does not support HTML5 video.
+        </video>
+        <div id="controls">
+            <button onclick="playVideo()">Play</button>
+            <button onclick="pauseVideo()">Pause</button>
+            <button onclick="skip(-10)">« 10s</button>
+            <button onclick="skip(10)">10s »</button>
+        </div>
+    </div>
+
+    <script src="videos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
