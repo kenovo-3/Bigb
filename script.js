@@ -1,49 +1,40 @@
-const videoData = [
-    {
-        title: "Super Dragon Ball Movie",
-        link: "https://www.youtube.com/embed/dQw4w9WgXcQ"
-    },
-    {
-        title: "Shinchan",
-        link: "https://youtu.be/nLF_Lw_pHzo?feature=shared" // Replace this with your actual Shinchan video embed link
-    }
-];
-
-// Dynamically generate the list of video names
-const videoList = document.getElementById("video-list");
-
-videoData.forEach((video, index) => {
-    const videoItem = document.createElement("li");
-    videoItem.textContent = video.title;
-    videoItem.onclick = function() {
-        loadVideo(video);
-    };
-    videoList.appendChild(videoItem);
-});
-
-// Load video into the player (YouTube embed)
+// Function to load video into the player
 function loadVideo(video) {
     const playerContainer = document.getElementById("video-player-container");
     const title = document.getElementById("video-title");
+    
     playerContainer.innerHTML = `<iframe width="560" height="315" src="${video.link}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
     title.textContent = video.title;
 }
 
-// Play the video
+// Display video dashboard with clickable video links
+const dashboard = document.getElementById('dashboard');
+videoData.forEach(video => {
+    const videoLink = document.createElement('button');
+    videoLink.textContent = video.title;
+    videoLink.onclick = () => loadVideo(video);
+    dashboard.appendChild(videoLink);
+});
+
+// Controls for the video player
+let videoElement = document.querySelector('iframe');
+
 function playVideo() {
-    const iframe = document.querySelector("iframe");
-    const iframeSrc = iframe.src;
-    iframe.src = iframeSrc + "?autoplay=1"; // Append autoplay to the YouTube embed URL
+    if (videoElement) {
+        videoElement.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+    }
 }
 
-// Pause the video
 function pauseVideo() {
-    const iframe = document.querySelector("iframe");
-    const iframeSrc = iframe.src;
-    iframe.src = iframeSrc.replace('?autoplay=1', ''); // Remove autoplay to pause
+    if (videoElement) {
+        videoElement.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+    }
 }
 
-// Skip time in the video (forward or backward by 10 seconds)
 function skip(seconds) {
-    alert("Skipping time requires YouTube API implementation.");
+    if (videoElement) {
+        const currentTime = videoElement.contentWindow.postMessage('{"event":"command","func":"getCurrentTime","args":""}', '*');
+        const newTime = currentTime + seconds;
+        videoElement.contentWindow.postMessage(`{"event":"command","func":"seekTo","args":[${newTime}, true]}`, '*');
+    }
 }
