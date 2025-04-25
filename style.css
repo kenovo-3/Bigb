@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    padding: 20px;
+}
+
+#dashboard {
+    margin: 20px;
+}
+
+#video-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#video-player {
+    width: 80%;
+    height: auto;
+    margin-top: 20px;
+}
+
+#controls button {
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+#controls button:hover {
+    background-color: #45a049;
+}
+
+#video-list {
+    list-style: none;
+    padding: 0;
+}
+
+#video-list li {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #ddd;
+    margin: 5px 0;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#video-list li:hover {
+    background-color: #4CAF50;
+    color: white;
+}
