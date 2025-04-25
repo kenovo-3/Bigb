@@ -1,8 +1,11 @@
-// Array to store video names and their respective YouTube embed URLs
 const videoData = [
     {
-        title: "sinchan",
-        link: "https://youtu.be/nLF_Lw_pHzo?feature=shared" // YouTube Embed link (use your actual video link)
+        title: "Super Dragon Ball Movie",
+        link: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+    },
+    {
+        title: "Shinchan",
+        link: "https://youtu.be/nLF_Lw_pHzo?feature=shared" // Replace this with your actual Shinchan video embed link
     }
 ];
 
@@ -42,7 +45,5 @@ function pauseVideo() {
 
 // Skip time in the video (forward or backward by 10 seconds)
 function skip(seconds) {
-    // YouTube videos don't directly support skipping through JS like this. 
-    // This function might need to use YouTube's API to actually control video time.
     alert("Skipping time requires YouTube API implementation.");
 }
