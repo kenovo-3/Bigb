@@ -1,7 +1,7 @@
 const videoData = [
     {
         title: "Super Dragon Ball Movie",
-        link: "https://vimeo.com/1078621375?share=copy"  // Replace with actual Vimeo embed link
+        link: "https://player.vimeo.com/video/1078621375?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"  // Replace with actual Vimeo embed link
     },
     {
         title: "Naruto vs Sasuke",
