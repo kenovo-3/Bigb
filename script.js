@@ -2,7 +2,7 @@
 const videoData = [
     {
         title: "Super Dragon Ball Movie",
-        link: "https://drive.google.com/uc?export=download&id=1CCs06Ok3qo6k9B-SmgCeJS5950ZsUOot" // Replace with your actual video link
+        link: "https://drive.google.com/uc?export=download&id=1CCs06Ok3qo6k9B-SmgCeJS5950ZsUOot" // The provided Google Drive link
     }
 ];
 
