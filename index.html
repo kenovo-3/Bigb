@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Support Doosh Hub</title>
   <style>
     body {
       background-color: #0f0f0f;
       color: #39ff14;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
-      animation: backgroundGlow 10s infinite;
       margin: 0;
-      padding-bottom: 100px; /* space for fixed banner */
+      padding-bottom: 120px; /* space for fixed banner */
+      animation: backgroundGlow 10s infinite;
     }
 
     @keyframes backgroundGlow {
@@ -24,23 +25,27 @@
     h2, h3 {
       color: #00ffff;
       text-shadow: 0 0 10px #00ffff;
+      font-size: 1.5em;
     }
 
     p, li {
-      font-size: 1.1em;
+      font-size: 1em;
       line-height: 1.6em;
       color: #f0f0f0;
     }
 
     ul, ol {
       text-align: left;
-      display: inline-block;
+      margin: 0 auto;
+      padding: 0 20px;
+      max-width: 500px;
     }
 
     .button {
       display: inline-block;
-      margin: 15px;
-      padding: 15px 30px;
+      margin: 10px;
+      padding: 12px 25px;
+      font-size: 1em;
       background-color: #ff00ff;
       color: white;
       text-decoration: none;
@@ -62,14 +67,9 @@
       100% { box-shadow: 0 0 10px #ff00ff; }
     }
 
-    .ad-buttons {
-      margin-top: 30px;
-    }
-
     .support-button {
       background-color: #00ffcc;
       box-shadow: 0 0 10px #00ffcc;
-      margin: 10px;
       animation: flicker 1.5s infinite;
     }
 
@@ -84,6 +84,16 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 999;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      text-align: center;
+    }
+
+    .banner-container iframe {
+      width: 100%;
+      max-width: 320px;
+      height: 50px;
     }
   </style>
 </head>
@@ -109,9 +119,17 @@
   <p><strong>Thank you again!</strong></p>
 
   <div class="ad-buttons">
+    <!-- 10 Support Ad Buttons -->
     <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 1</a>
     <a class="button support-button" href="https://www.profitableratecpm.com/fan9ymaay?key=4a2598d820ea2d8cc7b2ea8dd7762267" target="_blank">Support Us - Ad 2</a>
     <a class="button support-button" href="https://www.profitableratecpm.com/ppyqvcqz?key=57d99eb766822ca79ade5039f59957f8" target="_blank">Support Us - Ad 3</a>
+    <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 4</a>
+    <a class="button support-button" href="https://www.profitableratecpm.com/fan9ymaay?key=4a2598d820ea2d8cc7b2ea8dd7762267" target="_blank">Support Us - Ad 5</a>
+    <a class="button support-button" href="https://www.profitableratecpm.com/ppyqvcqz?key=57d99eb766822ca79ade5039f59957f8" target="_blank">Support Us - Ad 6</a>
+    <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 7</a>
+    <a class="button support-button" href="https://www.profitableratecpm.com/fan9ymaay?key=4a2598d820ea2d8cc7b2ea8dd7762267" target="_blank">Support Us - Ad 8</a>
+    <a class="button support-button" href="https://www.profitableratecpm.com/ppyqvcqz?key=57d99eb766822ca79ade5039f59957f8" target="_blank">Support Us - Ad 9</a>
+    <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 10</a>
   </div>
 
   <div style="margin-top: 40px;">
@@ -120,7 +138,7 @@
   </div>
 
   <!-- Fixed Banner Ad -->
-  <div class="fixed-banner">
+  <div class="fixed-banner banner-container">
     <script type="text/javascript">
       atOptions = {
         'key': '7c4d93a79ebf7caaf804e786132bfcf5',
@@ -134,4 +152,4 @@
   </div>
 
 </body>
-    </html>
+</html
