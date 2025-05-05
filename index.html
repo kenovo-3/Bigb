@@ -1,155 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Support Doosh Hub</title>
+  <meta charset="UTF-8" />
+  <title>The Eternal Nexus</title>
   <style>
     body {
-      background-color: #0f0f0f;
-      color: #39ff14;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
       margin: 0;
-      padding-bottom: 120px; /* space for fixed banner */
-      animation: backgroundGlow 10s infinite;
+      overflow: hidden;
+      background: #000;
     }
-
-    @keyframes backgroundGlow {
-      0% { background-color: #0f0f0f; }
-      50% { background-color: #1a1a1a; }
-      100% { background-color: #0f0f0f; }
-    }
-
-    h2, h3 {
-      color: #00ffff;
-      text-shadow: 0 0 10px #00ffff;
-      font-size: 1.5em;
-    }
-
-    p, li {
-      font-size: 1em;
-      line-height: 1.6em;
-      color: #f0f0f0;
-    }
-
-    ul, ol {
-      text-align: left;
-      margin: 0 auto;
-      padding: 0 20px;
-      max-width: 500px;
-    }
-
-    .button {
-      display: inline-block;
-      margin: 10px;
-      padding: 12px 25px;
-      font-size: 1em;
-      background-color: #ff00ff;
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #ff00ff;
-      transition: 0.3s;
-      animation: pulse 2s infinite;
-    }
-
-    .button:hover {
-      background-color: #ff66ff;
-      transform: scale(1.05);
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 10px #ff00ff; }
-      50% { box-shadow: 0 0 20px #ff00ff; }
-      100% { box-shadow: 0 0 10px #ff00ff; }
-    }
-
-    .support-button {
-      background-color: #00ffcc;
-      box-shadow: 0 0 10px #00ffcc;
-      animation: flicker 1.5s infinite;
-    }
-
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-
-    .fixed-banner {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      text-align: center;
-    }
-
-    .banner-container iframe {
-      width: 100%;
-      max-width: 320px;
-      height: 50px;
+    canvas {
+      display: block;
     }
   </style>
 </head>
 <body>
+<canvas id="scene"></canvas>
 
-  <h2>Support Me – Your Help Means Everything</h2>
-  <p>Hello dear visitor,</p>
-  <p>Thank you for considering supporting me. This website wouldn't be possible without kind people like you.</p>
+<script>
+const canvas = document.getElementById("scene");
+const ctx = canvas.getContext("2d");
 
-  <h3>Important: Please Read Carefully</h3>
-  <ul>
-    <li>Do not download anything from ads.</li>
-    <li>Click responsibly and naturally.</li>
-    <li>Avoid spammy or suspicious links.</li>
-  </ul>
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
 
-  <h3>Steps to Support:</h3>
-  <ol>
-    <li>Click on ads and wait 10 seconds before returning.</li>
-    <li>Multiple clicks are optional but appreciated!</li>
-  </ol>
+window.addEventListener("resize", () => {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  generateForest();
+});
 
-  <p><strong>Thank you again!</strong></p>
+class Tree {
+  constructor(x, height, layer) {
+    this.x = x;
+    this.height = height;
+    this.layer = layer;
+    this.baseX = x;
+  }
 
-  <div class="ad-buttons">
-    <!-- 10 Support Ad Buttons -->
-    <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 1</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/fan9ymaay?key=4a2598d820ea2d8cc7b2ea8dd7762267" target="_blank">Support Us - Ad 2</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/ppyqvcqz?key=57d99eb766822ca79ade5039f59957f8" target="_blank">Support Us - Ad 3</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 4</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/fan9ymaay?key=4a2598d820ea2d8cc7b2ea8dd7762267" target="_blank">Support Us - Ad 5</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/ppyqvcqz?key=57d99eb766822ca79ade5039f59957f8" target="_blank">Support Us - Ad 6</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 7</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/fan9ymaay?key=4a2598d820ea2d8cc7b2ea8dd7762267" target="_blank">Support Us - Ad 8</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/ppyqvcqz?key=57d99eb766822ca79ade5039f59957f8" target="_blank">Support Us - Ad 9</a>
-    <a class="button support-button" href="https://www.profitableratecpm.com/dj7fpubg?key=df19bd08ebdb7a8c1f5eeec54f7fdb69" target="_blank">Support Us - Ad 10</a>
-  </div>
+  draw(yOffset, scale, wind) {
+    const sway = Math.sin((this.baseX + Date.now() * 0.001) * 0.5) * wind;
+    ctx.fillStyle = `hsl(120, 30%, ${30 + this.layer * 10}%)`;
+    ctx.beginPath();
+    ctx.moveTo(this.x + sway, H - yOffset);
+    ctx.lineTo(this.x - 20 * scale + sway, H - this.height * scale - yOffset);
+    ctx.lineTo(this.x + 20 * scale + sway, H - this.height * scale - yOffset);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
 
-  <div style="margin-top: 40px;">
-    <a class="button" href="https://www.dooshtoons.linkpc.net/" target="_blank">Go to Main Page</a>
-    <a class="button" href="https://www.dooshtoons.linkpc.net/index.2.html" target="_blank">Go to Content Page</a>
-  </div>
+let trees = [];
+function generateForest() {
+  trees = [];
+  for (let layer = 1; layer <= 4; layer++) {
+    for (let i = 0; i < 20; i++) {
+      const x = Math.random() * W;
+      const height = 100 + Math.random() * 150;
+      trees.push(new Tree(x, height, layer));
+    }
+  }
+}
+generateForest();
 
-  <!-- Fixed Banner Ad -->
-  <div class="fixed-banner banner-container">
-    <script type="text/javascript">
-      atOptions = {
-        'key': '7c4d93a79ebf7caaf804e786132bfcf5',
-        'format': 'iframe',
-        'height': 50,
-        'width': 320,
-        'params': {}
-      };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/7c4d93a79ebf7caaf804e786132bfcf5/invoke.js"></script>
-  </div>
+// Fog
+const fogLayers = Array.from({ length: 3 }).map((_, i) => ({
+  y: Math.random() * H,
+  speed: 0.2 + i * 0.1,
+  alpha: 0.05 + i * 0.05
+}));
 
+// Sun rays
+function drawLightRays() {
+  for (let i = 0; i < 5; i++) {
+    const x = W / 2 + Math.sin(Date.now() * 0.0003 + i) * 200;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + 100, H);
+    ctx.lineWidth = 100;
+    ctx.strokeStyle = "rgba(255,255,200,0.02)";
+    ctx.stroke();
+  }
+}
+
+let cameraY = 0;
+let cameraZoom = 1;
+let time = 0;
+
+function animate() {
+  ctx.clearRect(0, 0, W, H);
+  time += 0.01;
+
+  // Camera motion
+  cameraY = Math.sin(time) * 100 + time * 30;
+  cameraZoom = Math.max(0.5, 1 - time * 0.01);
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, "#0c0c0c");
+  grad.addColorStop(1, "#1a3d1a");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Sun rays
+  drawLightRays();
+
+  // Forest
+  trees.forEach(tree => {
+    const scale = cameraZoom * (1 + tree.layer * 0.1);
+    tree.draw(cameraY * (tree.layer * 0.25), scale, 1 + tree.layer * 0.3);
+  });
+
+  // Fog
+  fogLayers.forEach(fog => {
+    fog.y += fog.speed;
+    if (fog.y > H) fog.y = -H;
+    ctx.fillStyle = `rgba(255,255,255,${fog.alpha})`;
+    ctx.fillRect(0, fog.y, W, H / 3);
+  });
+
+  // Title Reveal
+  if (time > 8) {
+    ctx.font = `bold ${Math.min(W, H) / 12}px serif`;
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.textAlign = "center";
+    ctx.fillText("The Eternal Nexus", W / 2, H / 2);
+  }
+
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
 </body>
-</html
+</html>
