@@ -2,36 +2,101 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3D Game</title>
-  <style>body { margin: 0; overflow: hidden; }</style>
+  <title>Cube Dodger 3D</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
+  <!-- Three.js library -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script>
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Cube
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
+    // Lighting
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 10, 7.5);
+    scene.add(light);
+
+    // Player Cube
+    const cubeGeo = new THREE.BoxGeometry();
+    const cubeMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(cubeGeo, cubeMat);
     scene.add(cube);
+    cube.position.y = 0.5;
 
-    camera.position.z = 5;
+    // Floor
+    const floorGeo = new THREE.PlaneGeometry(20, 20);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
 
-    // Animate
+    // Enemy
+    const enemyGeo = new THREE.SphereGeometry(0.5, 32, 32);
+    const enemyMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+    const enemy = new THREE.Mesh(enemyGeo, enemyMat);
+    scene.add(enemy);
+    enemy.position.set(3, 0.5, -5);
+
+    // Camera position
+    camera.position.set(0, 5, 10);
+    camera.lookAt(0, 0, 0);
+
+    // Controls
+    const keys = {};
+    document.addEventListener("keydown", (e) => keys[e.key] = true);
+    document.addEventListener("keyup", (e) => keys[e.key] = false);
+
+    function moveCube() {
+      if (keys["ArrowUp"]) cube.position.z -= 0.1;
+      if (keys["ArrowDown"]) cube.position.z += 0.1;
+      if (keys["ArrowLeft"]) cube.position.x -= 0.1;
+      if (keys["ArrowRight"]) cube.position.x += 0.1;
+    }
+
+    // Enemy movement
+    let enemySpeed = 0.05;
+    function moveEnemy() {
+      enemy.position.z += enemySpeed;
+      if (enemy.position.z > 5) {
+        enemy.position.z = -10;
+        enemy.position.x = (Math.random() - 0.5) * 10; // random X
+      }
+    }
+
+    // Collision check
+    function checkCollision() {
+      const distance = cube.position.distanceTo(enemy.position);
+      if (distance < 1) {
+        alert("💀 Game Over! Refresh to play again.");
+        cube.position.set(0, 0.5, 0);
+        enemy.position.set(3, 0.5, -5);
+      }
+    }
+
+    // Animate Loop
     function animate() {
       requestAnimationFrame(animate);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      moveCube();
+      moveEnemy();
+      checkCollision();
       renderer.render(scene, camera);
     }
     animate();
+
+    // Resize handler
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   </script>
 </body>
 </html>
-
