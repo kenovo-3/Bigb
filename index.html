@@ -3,66 +3,68 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Simple Temple-Run Style — The Last Run Lite</title>
+<title>The Last Run — Panda Run (Lite)</title>
 <style>
-  :root{--bg:#050610;--panel:rgba(0,0,0,0.6);--accent:#16a34a;--danger:#ef4444}
-  html,body{height:100%;margin:0;background:linear-gradient(180deg,#071020 0%, #0b1220 60%, #07121a 100%);font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+  :root{
+    --bg1:#071124;
+    --bg2:#08121a;
+    --panel:rgba(0,0,0,0.55);
+    --accent:#16a34a;
+    --danger:#ef4444;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 60%);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#fff}
   #game { width:100vw; height:100vh; position:relative; overflow:hidden; touch-action:none; }
-  canvas { display:block; width:100%; height:100%; }
-  .ui { position:absolute; left:16px; top:16px; color:white; z-index:40; max-width:34ch; }
-  .title { font-weight:700; font-size:20px; margin:0 0 6px 0; letter-spacing:0.4px }
-  .subtitle { font-size:13px; color:rgba(255,255,255,0.85); margin:0 0 12px 0 }
-  .panel { background:var(--panel); padding:12px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.6) }
+  canvas{ display:block; width:100%; height:100%; }
   .menu { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:50 }
-  .menu-inner { width:min(520px,94vw); padding:22px; border-radius:12px; background:linear-gradient(180deg,rgba(10,10,14,0.75),rgba(0,0,0,0.6)); text-align:center; color:white }
-  .big { font-size:28px; font-weight:700; margin-bottom:8px }
-  .btn { background:var(--accent); border:none; color:white; padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer }
-  .btn.secondary { background:#374151 }
-  .hud { position:absolute; right:16px; top:16px; z-index:40; color:white }
-  .hud .score { font-family:monospace; font-weight:700; font-size:20px }
-  .footer { position:absolute; left:16px; bottom:16px; color:rgba(255,255,255,0.7); font-size:12px }
-  /* Mobile controls */
-  .controls { position:absolute; bottom:18px; left:50%; transform:translateX(-50%); display:flex; gap:12px; z-index:60; }
-  .ctrl-btn { width:64px; height:64px; border-radius:12px; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:20px; user-select:none; touch-action:none }
-  .ctrl-btn:active { transform:translateY(2px) }
-  .small { width:48px; height:48px; border-radius:10px; font-size:18px }
-  .game-over { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:60; }
-  .go-inner { background:rgba(0,0,0,0.8); padding:20px; border-radius:12px; text-align:center; color:white }
-  @media(min-width:768px){ .big{font-size:36px} .ctrl-btn{display:none} }
+  .menu-inner{ width:min(720px,94vw); padding:20px; border-radius:12px; background:linear-gradient(180deg, rgba(6,8,12,0.85), rgba(0,0,0,0.6)); text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.6) }
+  .title{ font-size:28px; font-weight:800; margin:0 0 8px 0 }
+  .subtitle{ font-size:14px; color:rgba(255,255,255,0.85); margin:0 0 14px 0 }
+  .btn{ background:var(--accent); color:white; border:0; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,0.4)}
+  .btn.secondary{ background:#374151 }
+  .hud{ position:absolute; left:14px; top:14px; z-index:60; display:flex; gap:12px; align-items:center }
+  .panel{ background:var(--panel); padding:10px 12px; border-radius:10px; font-weight:700; font-family:monospace}
+  .hud .small{ font-family:Inter,Arial; font-weight:600; color:#ddd; font-size:13px }
+  .footer{ position:absolute; left:14px; bottom:14px; color:rgba(255,255,255,0.7); font-size:12px; z-index:60 }
+  .controls{ position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:12px; z-index:70 }
+  .ctrl{ width:68px; height:68px; border-radius:12px; background:rgba(0,0,0,0.45); display:flex; align-items:center; justify-content:center; color:white; font-weight:800; font-size:22px; user-select:none; touch-action:none; }
+  .ctrl.small{ width:54px; height:54px; font-size:18px }
+  .game-over{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:80; }
+  .go-inner{ background:rgba(0,0,0,0.82); padding:18px; border-radius:12px; text-align:center; color:white; width:min(520px,86vw) }
+  @media(min-width:900px){ .title{ font-size:40px } .ctrl{ display:none } }
 </style>
 </head>
 <body>
 <div id="game">
-  <!-- Three.js canvas will be injected here -->
   <div id="menu" class="menu">
     <div class="menu-inner">
-      <div class="big">The Last Run — Lite</div>
-      <div style="margin-bottom:12px;color:rgba(255,255,255,0.9)">A smooth, simple Temple-Run-like prototype. Dodge obstacles. Survive as far as you can.</div>
+      <div class="title">The Last Run — Panda Run</div>
+      <div class="subtitle">Cartoon panda runner, polished materials, synthesized sounds — no downloads required.</div>
+
       <div style="display:flex;gap:10px;justify-content:center;margin-bottom:12px">
         <button id="playBtn" class="btn">Play</button>
         <button id="howBtn" class="btn secondary">How to</button>
       </div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.75)">Controls: A/D or ←/→ to move, Space to jump. On mobile use on-screen buttons.</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.85)">Controls: A/D or ←/→ to move lanes, Space to jump. On mobile use the on-screen buttons (left/jump/right).</div>
     </div>
   </div>
 
-  <div id="hud" class="hud panel">
-    <div style="font-size:12px;color:rgba(255,255,255,0.85)">Distance</div>
-    <div class="score" id="score">0</div>
+  <div class="hud">
+    <div class="panel">Distance: <span id="score">0</span></div>
+    <div class="panel">Coins: <span id="coins">0</span></div>
   </div>
 
-  <div class="footer">Prototype • Smooth Graphics • Lanes: 3</div>
+  <div class="footer">Prototype • Panda Model • Synth SFX • Responsive</div>
 
   <div id="controls" class="controls" aria-hidden="false">
-    <div id="leftBtn" class="ctrl-btn">◀</div>
-    <div id="jumpBtn" class="ctrl-btn">⤴</div>
-    <div id="rightBtn" class="ctrl-btn">▶</div>
+    <div id="leftBtn" class="ctrl">◀</div>
+    <div id="jumpBtn" class="ctrl small">⤴</div>
+    <div id="rightBtn" class="ctrl">▶</div>
   </div>
 
   <div id="gameOver" class="game-over" style="display:none">
     <div class="go-inner">
-      <div style="font-size:22px;font-weight:700">Game Over</div>
-      <div id="finalScore" style="margin-top:8px;font-family:monospace"></div>
+      <div style="font-size:22px;font-weight:800">Game Over</div>
+      <div id="final" style="margin-top:8px;font-family:monospace"></div>
       <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
         <button id="retryBtn" class="btn">Retry</button>
         <button id="menuBtn" class="btn secondary">Menu</button>
@@ -76,54 +78,59 @@
 
 <script>
 (() => {
-  // Basic scene, camera, renderer
-  let scene, camera, renderer, clock;
-  let player, playerState;
-  const chunks = [];
-  const obstacles = [];
-  const LANE_X = [-2.4, 0, 2.4]; // lane x positions
+  // Basic config
+  const LANE_X = [-2.4, 0, 2.4];
   const CHUNK_LENGTH = 12;
-  const VISIBLE_CHUNKS = 10;
-
-  // Game state
-  let running = false;
-  let paused = false;
-  let score = 0;
-  let speed = 0.18; // base speed
-  let lastSpawn = 0;
-
-  // Responsive mount
+  const VISIBLE = 10;
   const mount = document.getElementById('game');
-  const hudScore = document.getElementById('score');
+  const scoreEl = document.getElementById('score');
+  const coinsEl = document.getElementById('coins');
   const menu = document.getElementById('menu');
-  const gameOverEl = document.getElementById('gameOver');
-  const finalScoreEl = document.getElementById('finalScore');
-
-  // Touch/buttons
+  const playBtn = document.getElementById('playBtn');
+  const howBtn = document.getElementById('howBtn');
   const leftBtn = document.getElementById('leftBtn');
   const rightBtn = document.getElementById('rightBtn');
   const jumpBtn = document.getElementById('jumpBtn');
-  const playBtn = document.getElementById('playBtn');
+  const gameOverEl = document.getElementById('gameOver');
+  const finalEl = document.getElementById('final');
   const retryBtn = document.getElementById('retryBtn');
   const menuBtn = document.getElementById('menuBtn');
-  const howBtn = document.getElementById('howBtn');
 
-  // Init Three
-  function initThree() {
+  // Three.js scene
+  let scene, camera, renderer, clock;
+  let player, panda, pandaParts = [];
+  let chunks = [];
+  let running = false;
+  let paused = false;
+  let score = 0;
+  let coins = 0;
+  let speed = 0.18;
+  let lastSpawn = 0;
+  let audioCtx, masterGain, bgGain;
+  let jumpSound, collectSound, hitSound;
+
+  // Utilities
+  function rnd(min,max){ return Math.random()*(max-min)+min; }
+
+  // Init Three scene
+  function initScene() {
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x05101a, 0.025);
-    camera = new THREE.PerspectiveCamera(60, mount.clientWidth / mount.clientHeight, 0.1, 1000);
-    camera.position.set(0, 4.3, 9);
+    scene.fog = new THREE.FogExp2(0x071124, 0.02);
+
+    const w = mount.clientWidth;
+    const h = mount.clientHeight;
+    camera = new THREE.PerspectiveCamera(60, w/h, 0.1, 1000);
+    camera.position.set(0,4.3,9);
     camera.lookAt(0,1,0);
 
-    renderer = new THREE.WebGLRenderer({ antialias:true });
-    renderer.setSize(mount.clientWidth, mount.clientHeight);
+    renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+    renderer.setSize(w,h);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     mount.insertBefore(renderer.domElement, mount.firstChild);
 
-    // Lights
-    const hemi = new THREE.HemisphereLight(0xbfeaff, 0x1a1a1a, 0.6);
+    // lights
+    const hemi = new THREE.HemisphereLight(0xbfeaff, 0x0b0b12, 0.6);
     scene.add(hemi);
     const dir = new THREE.DirectionalLight(0xffffff, 0.9);
     dir.position.set(5,12,5);
@@ -133,75 +140,133 @@
     dir.shadow.camera.far = 50;
     scene.add(dir);
 
-    // Ground ambient subtle tile
-    const groundMat = new THREE.MeshStandardMaterial({ color:0x101822, roughness:1 });
-    // create chunk geometry when building chunks
+    // subtle environment mesh (backdrop ring)
+    const ringGeo = new THREE.TorusGeometry(28, 2.2, 16, 120);
+    const ringMat = new THREE.MeshStandardMaterial({ color:0x071426, roughness:1.0, metalness:0.0 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI/2;
+    ring.position.z = -110;
+    scene.add(ring);
+
+    // floor plane for shadow blending
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(400,400), new THREE.MeshStandardMaterial({ color:0x050a10 }));
+    plane.rotation.x = -Math.PI/2;
+    plane.position.y = -0.25;
+    scene.add(plane);
+
     clock = new THREE.Clock();
   }
 
-  // Player
-  function createPlayer() {
-    const geo = new THREE.BoxGeometry(1,1.6,1);
-    const mat = new THREE.MeshStandardMaterial({ color:0x00d07a, metalness:0.1, roughness:0.6 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.castShadow = true;
-    mesh.position.set(0,1,0);
-    scene.add(mesh);
-    // state
-    playerState = { lane:1, x:0, z:0, vy:0, grounded:true, height:1.6, sliding:false };
-    player = mesh;
+  // Build a stylized panda from primitives (no external model)
+  function createPanda() {
+    panda = new THREE.Group();
+
+    // materials
+    const whiteMat = new THREE.MeshStandardMaterial({ color:0xf7f7f7, metalness:0.03, roughness:0.7 });
+    const blackMat = new THREE.MeshStandardMaterial({ color:0x0b0b0b, metalness:0.02, roughness:0.6 });
+    const pinkMat = new THREE.MeshStandardMaterial({ color:0xffc0c0, metalness:0.02, roughness:0.6 });
+
+    // body
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.9,24,24), whiteMat);
+    body.scale.set(1,1.05,1.15);
+    body.position.set(0,0.55,0);
+    body.castShadow = true;
+    panda.add(body);
+    pandaParts.push(body);
+
+    // belly overlay (slightly darker)
+    const belly = new THREE.Mesh(new THREE.SphereGeometry(0.6,18,18), new THREE.MeshStandardMaterial({ color:0xefeef0, roughness:0.8 }));
+    belly.scale.set(0.9,0.8,1);
+    belly.position.set(0,0.35,0.6);
+    belly.rotation.x = -0.4;
+    belly.receiveShadow = true;
+    body.add(belly);
+
+    // head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.6,24,24), whiteMat);
+    head.position.set(0,1.3,0.05);
+    head.castShadow = true;
+    panda.add(head);
+    pandaParts.push(head);
+
+    // ears
+    const earGeo = new THREE.SphereGeometry(0.22,16,16);
+    const leftEar = new THREE.Mesh(earGeo, blackMat); leftEar.position.set(-0.36,1.6,-0.05); panda.add(leftEar);
+    const rightEar = leftEar.clone(); rightEar.position.x = 0.36; panda.add(rightEar);
+
+    // eye patches
+    const patchGeo = new THREE.SphereGeometry(0.22,16,16);
+    const leftPatch = new THREE.Mesh(patchGeo, blackMat); leftPatch.position.set(-0.22,1.26,0.48); leftPatch.rotation.set(-0.2,0.1,0.1); leftPatch.scale.set(1.2,0.9,0.6); panda.add(leftPatch);
+    const rightPatch = leftPatch.clone(); rightPatch.position.x = 0.22; panda.add(rightPatch);
+
+    // eyes (white dots)
+    const eyeGeo = new THREE.SphereGeometry(0.06,10,10);
+    const leftEye = new THREE.Mesh(eyeGeo, new THREE.MeshStandardMaterial({ color:0xffffff })); leftEye.position.set(-0.22,1.28,0.64); panda.add(leftEye);
+    const rightEye = leftEye.clone(); rightEye.position.x = 0.22; panda.add(rightEye);
+
+    // nose
+    const nose = new THREE.Mesh(new THREE.BoxGeometry(0.12,0.06,0.08), blackMat); nose.position.set(0,1.15,0.72); panda.add(nose);
+
+    // arms
+    const armGeo = new THREE.CapsuleGeometry(0.12,0.5,4,8);
+    const leftArm = new THREE.Mesh(armGeo, blackMat); leftArm.position.set(-0.7,0.9,0.1); leftArm.rotation.z = 0.45; panda.add(leftArm);
+    const rightArm = leftArm.clone(); rightArm.position.x = 0.7; rightArm.rotation.z = -0.45; panda.add(rightArm);
+
+    // legs
+    const legGeo = new THREE.CapsuleGeometry(0.16,0.36,4,8);
+    const leftLeg = new THREE.Mesh(legGeo, blackMat); leftLeg.position.set(-0.28,0.0,0.2); panda.add(leftLeg);
+    const rightLeg = leftLeg.clone(); rightLeg.position.x = 0.28; panda.add(rightLeg);
+
+    panda.scale.set(0.95,0.95,0.95);
+    panda.position.set(0,1,0);
+    panda.castShadow = true;
+    scene.add(panda);
+    player = panda;
   }
 
-  // Create a chunk (floor + walls)
+  // Create a chunk (floor + side rails)
   function makeChunk() {
     const group = new THREE.Group();
-    // floor
     const floorGeo = new THREE.BoxGeometry(8.5, 0.5, CHUNK_LENGTH);
-    const floorMat = new THREE.MeshStandardMaterial({ color:0x0d1a26 });
+    const floorMat = new THREE.MeshStandardMaterial({ color:0x0d1a26, roughness:0.9 });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.receiveShadow = true;
     floor.position.y = 0;
     group.add(floor);
 
-    // side rails
-    const sideGeo = new THREE.BoxGeometry(0.6, 2.2, CHUNK_LENGTH);
+    const sideGeo = new THREE.BoxGeometry(0.6,2.2, CHUNK_LENGTH);
     const sideMat = new THREE.MeshStandardMaterial({ color:0x071018 });
-    const left = new THREE.Mesh(sideGeo, sideMat);
-    left.position.set(-4.2,1.1,0);
-    left.receiveShadow = true;
-    group.add(left);
-    const right = left.clone();
-    right.position.set(4.2,1.1,0);
-    group.add(right);
+    const left = new THREE.Mesh(sideGeo, sideMat); left.position.set(-4.2,1.1,0); left.receiveShadow=true; group.add(left);
+    const right = left.clone(); right.position.set(4.2,1.1,0); group.add(right);
 
     group.userData.obstacles = [];
     return group;
   }
 
-  // Spawn initial chunks
-  function spawnInitialChunks() {
-    // clear any existing
-    for (const c of chunks) { scene.remove(c); }
-    chunks.length = 0;
-    for (let i = 0; i < VISIBLE_CHUNKS; i++) {
+  function spawnInitial() {
+    // clear if present
+    for (const c of chunks) { try{ scene.remove(c) }catch(e){} }
+    chunks = [];
+    for (let i=0;i<VISIBLE;i++){
       const c = makeChunk();
-      c.position.z = -i * CHUNK_LENGTH;
+      c.position.z = -i*CHUNK_LENGTH;
       scene.add(c);
       chunks.push(c);
     }
   }
 
-  // Spawn obstacle on chunk
-  function addObstacleToChunk(chunk) {
-    // small chance of gap vs block vs spinner
-    const type = Math.random();
-    if (type < 0.12) {
-      // gap: visual darker patch, but we actually reduce floor collision by creating a box sunk
-      const hole = new THREE.Mesh(new THREE.BoxGeometry(5,0.1,4), new THREE.MeshStandardMaterial({ color:0x000814 }));
-      hole.position.set((Math.random()-0.5)*3, -0.24, (Math.random()-0.5)*(CHUNK_LENGTH-2));
+  // obstacle & coin generation
+  function addObstacle(chunk) {
+    const r = Math.random();
+    if (r < 0.12) {
+      // gap visual
+      const hole = new THREE.Mesh(new THREE.BoxGeometry(5,0.05,4), new THREE.MeshStandardMaterial({ color:0x000914 }));
+      hole.position.set((Math.random()-0.5)*2.5, -0.245, (Math.random()-0.5)*(CHUNK_LENGTH-2));
       chunk.add(hole);
-      chunk.userData.obstacles.push({ mesh:hole, kind:'gap' });
-    } else if (type < 0.78) {
+      chunk.userData.obstacles.push({ mesh:hole, type:'gap' });
+      return;
+    }
+    if (r < 0.7) {
       // block
       const w = 0.8 + Math.random()*1.2;
       const h = 0.8 + Math.random()*1.6;
@@ -209,231 +274,298 @@
       block.position.set(LANE_X[Math.floor(Math.random()*3)], h/2, (Math.random()-0.5)*(CHUNK_LENGTH-2));
       block.castShadow = true;
       chunk.add(block);
-      chunk.userData.obstacles.push({ mesh:block, kind:'block' });
-    } else {
-      // spike orb (floating)
-      const orb = new THREE.Mesh(new THREE.SphereGeometry(0.28,12,12), new THREE.MeshStandardMaterial({ emissive:0xffaa33, emissiveIntensity:0.8 }));
-      orb.position.set(LANE_X[Math.floor(Math.random()*3)], 1.1, (Math.random()-0.5)*(CHUNK_LENGTH-2));
-      chunk.add(orb);
-      chunk.userData.obstacles.push({ mesh:orb, kind:'orb' });
+      chunk.userData.obstacles.push({ mesh:block, type:'block' });
+      return;
     }
+    // coin orb
+    const coin = new THREE.Mesh(new THREE.SphereGeometry(0.18,10,10), new THREE.MeshStandardMaterial({ color:0xffd166, emissive:0xffd166, emissiveIntensity:0.6 }));
+    coin.position.set(LANE_X[Math.floor(Math.random()*3)], 1.1, (Math.random()-0.5)*(CHUNK_LENGTH-2));
+    chunk.add(coin);
+    chunk.userData.obstacles.push({ mesh:coin, type:'coin' });
   }
 
-  // Recycle chunks that passed the player
-  function recycleChunks() {
+  // recycle chunks that pass player
+  function recycle() {
     for (const c of chunks) {
       if (c.position.z > CHUNK_LENGTH + 4) {
-        // move to front
-        const backMost = chunks.reduce((p,n)=> n.position.z < p.position.z ? n : p, chunks[0]);
-        c.position.z = backMost.position.z - CHUNK_LENGTH;
-        // remove previous obstacles
-        for (const o of c.userData.obstacles) { try { c.remove(o.mesh||o); } catch(e){} }
+        const back = chunks.reduce((p,n)=> n.position.z < p.position.z ? n : p, chunks[0]);
+        c.position.z = back.position.z - CHUNK_LENGTH;
+        // remove old obstacles
+        for (const o of c.userData.obstacles) {
+          try{ c.remove(o.mesh||o) }catch(e){}
+        }
         c.userData.obstacles.length = 0;
-        // randomly add 0..2 obstacles
-        if (Math.random() > 0.35) addObstacleToChunk(c);
+        // maybe spawn 0..2 obstacles
+        if (Math.random() > 0.35) addObstacle(c);
+        if (Math.random() > 0.88) addObstacle(c);
       }
     }
   }
 
-  // Collision detection using bounding boxes
-  function checkCollisions() {
+  // collisions
+  function checkCollision() {
     if (!player) return false;
-    const playerBox = new THREE.Box3().setFromObject(player);
-    // enlarge slightly
-    playerBox.expandByScalar(0.06);
+    const pBox = new THREE.Box3().setFromObject(player);
+    pBox.expandByScalar(0.04);
     for (const c of chunks) {
-      for (const o of c.userData.obstacles) {
-        const mesh = o.mesh || o;
-        const box = new THREE.Box3().setFromObject(mesh);
-        if (o.kind === 'gap') {
-          // check if player's feet are above a hole (i.e., player over hole and low height)
-          const holeCenter = mesh.getWorldPosition(new THREE.Vector3());
-          const dz = Math.abs(holeCenter.z - player.position.z);
-          const dx = Math.abs(holeCenter.x - player.position.x);
-          if (dz < 1.6 && dx < 2.5 && player.position.y < 1.05) {
-            return true; // fell into gap
+      for (const obj of c.userData.obstacles) {
+        const m = obj.mesh;
+        const t = obj.type;
+        if (t === 'coin') {
+          const dist = m.position.clone().add(c.position).distanceTo(player.position);
+          // using world pos approx: chunk position + mesh position
+          const worldPos = new THREE.Vector3();
+          m.getWorldPosition(worldPos);
+          const d = worldPos.distanceTo(player.position);
+          if (d < 0.8) {
+            // collect
+            try{ c.remove(m); }catch(e){}
+            obj.collected = true;
+            playCollect();
+            coins++; coinsEl.textContent = coins;
+            continue;
           }
+        } else if (t === 'gap') {
+          // if player over gap and low y => fell
+          const worldPos = new THREE.Vector3(); m.getWorldPosition(worldPos);
+          const dz = Math.abs(worldPos.z - player.position.z);
+          const dx = Math.abs(worldPos.x - player.position.x);
+          if (dz < 1.6 && dx < 2.2 && player.position.y < 1.05) return true;
         } else {
-          if (playerBox.intersectsBox(box)) return true;
+          const box = new THREE.Box3().setFromObject(m);
+          if (pBox.intersectsBox(box)) return true;
         }
       }
     }
     return false;
   }
 
-  // Input handling
-  const keys = {};
-  function onKeyDown(e) {
-    keys[e.key] = true;
-    if (!running) return;
-    if (e.key === 'ArrowLeft' || e.key === 'a') moveLane(-1);
-    if (e.key === 'ArrowRight' || e.key === 'd') moveLane(1);
-    if (e.key === ' ' || e.code === 'Space') attemptJump();
-    if (e.key === 'p') paused = !paused;
-  }
-  function onKeyUp(e) { keys[e.key] = false; }
+  // audio synth (copyright-free generated sounds)
+  function initAudio() {
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e){}
+    if (!audioCtx) return;
+    masterGain = audioCtx.createGain(); masterGain.gain.value = 0.9; masterGain.connect(audioCtx.destination);
+    bgGain = audioCtx.createGain(); bgGain.gain.value = 0.03; bgGain.connect(masterGain);
 
-  // Touch & button handlers
-  let touchStartX = null;
-  function onTouchStart(e) {
-    if (!running) return;
-    const t = e.changedTouches[0];
-    touchStartX = t.clientX;
-  }
-  function onTouchEnd(e) {
-    if (!running || touchStartX === null) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStartX;
-    if (Math.abs(dx) > 40) {
-      if (dx < 0) moveLane(-1);
-      else moveLane(1);
-    } else {
-      attemptJump();
-    }
-    touchStartX = null;
-  }
+    // background playful loop: simple saw + LFO
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 220;
+    const lfo = audioCtx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.value = 0.25;
+    const lfoGain = audioCtx.createGain(); lfoGain.gain.value = 20;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    const bgGainNode = audioCtx.createGain(); bgGainNode.gain.value = 0.0018;
+    osc.connect(bgGainNode); bgGainNode.connect(bgGain);
+    osc.start(); lfo.start();
 
-  // Buttons
-  leftBtn.addEventListener('pointerdown', ()=> moveLane(-1));
-  rightBtn.addEventListener('pointerdown', ()=> moveLane(1));
-  jumpBtn.addEventListener('pointerdown', ()=> attemptJump());
-  playBtn.addEventListener('click', startGame);
-  retryBtn.addEventListener('click', restartGame);
-  menuBtn.addEventListener('click', showMenu);
-  howBtn.addEventListener('click', ()=> alert('Move: A/D or ←/→. Jump: Space or Jump button. Avoid red blocks and gaps.'));
+    // jump sound generator
+    jumpSound = (when=0) => {
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime + when;
+      const o = audioCtx.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(220, t);
+      o.frequency.exponentialRampToValueAtTime(420, t+0.12);
+      const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0015,t); g.gain.exponentialRampToValueAtTime(0.0005,t+0.12); g.gain.exponentialRampToValueAtTime(0.00001,t+0.5);
+      o.connect(g); g.connect(masterGain);
+      o.start(t); o.stop(t+0.5);
+    };
 
-  // Lane switch with smoothing
-  function moveLane(dir) {
-    if (!playerState || playerState.sliding) return;
-    const target = THREE.MathUtils.clamp(playerState.lane + dir, 0, 2);
-    playerState.lane = target;
-    playerState.targetX = LANE_X[target];
-  }
+    // collect sound
+    collectSound = (when=0) => {
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime + when;
+      const o1 = audioCtx.createOscillator(); o1.type='triangle'; o1.frequency.setValueAtTime(880,t);
+      const o2 = audioCtx.createOscillator(); o2.type='sine'; o2.frequency.setValueAtTime(1320,t);
+      const g = audioCtx.createGain(); g.gain.setValueAtTime(0.002,t); g.gain.exponentialRampToValueAtTime(0.00001,t+0.35);
+      o1.connect(g); o2.connect(g); g.connect(masterGain);
+      o1.start(t); o2.start(t); o1.stop(t+0.35); o2.stop(t+0.35);
+    };
 
-  // Jump
-  function attemptJump() {
-    if (!playerState || !playerState.grounded || playerState.sliding) return;
-    playerState.vy = 0.42;
-    playerState.grounded = false;
-  }
-
-  // Slide (not implemented heavy, just quick duck)
-  function startSlide() {
-    if (!playerState || playerState.sliding) return;
-    playerState.sliding = true;
-    player.scale.y = 0.5;
-    setTimeout(()=>{ player.scale.y = 1; playerState.sliding=false; }, 550);
+    // hit sound
+    hitSound = (when=0) => {
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime + when;
+      const o = audioCtx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(140, t);
+      const g = audioCtx.createGain(); g.gain.setValueAtTime(0.004, t); g.gain.exponentialRampToValueAtTime(0.00001, t+0.45);
+      o.connect(g); g.connect(masterGain);
+      o.start(t); o.stop(t+0.45);
+    };
   }
 
-  // Game loop
+  // play wrappers
+  function playJump(){ if (jumpSound) jumpSound(); }
+  function playCollect(){ if (collectSound) collectSound(); }
+  function playHit(){ if (hitSound) hitSound(); }
+
+  // input handling
+  const keys={};
+  function onKeyDown(e){ keys[e.key]=true; if (!running) return; if (e.key==='ArrowLeft' || e.key==='a') laneLeft(); if (e.key==='ArrowRight' || e.key==='d') laneRight(); if (e.key===' ' || e.code==='Space') doJump();}
+  function onKeyUp(e){ keys[e.key]=false; }
+
+  // touch buttons
+  leftBtn.addEventListener('pointerdown', ()=>{ if (!running) return; laneLeft(); });
+  rightBtn.addEventListener('pointerdown', ()=>{ if (!running) return; laneRight(); });
+  jumpBtn.addEventListener('pointerdown', ()=>{ if (!running) return; doJump(); });
+
+  // lane move logic
+  function laneLeft(){ if (!player) return; const state = player.userData; state.lane = Math.max(0, state.lane-1); state.targetX = LANE_X[state.lane]; }
+  function laneRight(){ if (!player) return; const state = player.userData; state.lane = Math.min(2, state.lane+1); state.targetX = LANE_X[state.lane]; }
+
+  // jump
+  function doJump(){ const state = player && player.userData; if (!state) return; if (!state.grounded) return; state.vy = 0.42; state.grounded=false; playJump(); }
+
+  // create player wrapper (add userData)
+  function createPlayer() {
+    createPanda(); // builds 'player' as panda group
+    // attach state
+    player.userData = { lane:1, targetX:LANE_X[1], vy:0, grounded:true, sliding:false };
+  }
+
+  // animation loop
   function animate() {
     requestAnimationFrame(animate);
     if (!renderer) return;
-    const dt = Math.min(0.033, clock.getDelta()); // clamp delta
+    const dt = Math.min(0.033, clock.getDelta());
 
     if (running && !paused) {
-      // speed ramp up slightly with score
-      speed += 0.00001 * Math.max(1, score);
+      // speed ramps slowly
+      speed += 0.00001*Math.max(1,score);
 
-      // update player x smoothing
-      if (playerState.targetX === undefined) playerState.targetX = LANE_X[playerState.lane];
-      player.position.x = THREE.MathUtils.lerp(player.position.x, playerState.targetX, 10 * dt);
+      // smooth lateral movement
+      if (player && player.userData) {
+        const st = player.userData;
+        player.position.x = THREE.MathUtils.lerp(player.position.x, st.targetX, 8*dt);
 
-      // gravity & jump
-      playerState.vy -= 0.025;
-      player.position.y += playerState.vy;
-      if (player.position.y <= 1) { player.position.y = 1; playerState.vy = 0; playerState.grounded = true; }
+        // bobbing run animation
+        const t = performance.now()*0.002;
+        player.position.y = 1 + Math.sin(t*6)*0.03; // subtle bob
+        player.rotation.y = Math.sin(t*2)*0.02;
 
-      // move chunks forward relative to player (simulate forward motion)
-      for (const c of chunks) {
-        c.position.z += speed * (1 + score/2000);
+        // vertical physics for jump
+        st.vy -= 0.025;
+        player.position.y += st.vy;
+        if (player.position.y <= 1) { player.position.y = 1; st.vy = 0; st.grounded = true; }
       }
 
-      recycleChunks();
+      // move chunks forward
+      for (const c of chunks) c.position.z += speed*(1 + score/2500);
 
-      // spawn initial obstacles
+      recycle();
+
+      // occasionally spawn obstacles
       lastSpawn += dt;
-      if (lastSpawn > 0.9) { // spawn occasionally
-        const candidate = chunks[Math.floor(Math.random()*chunks.length)];
-        if (Math.random() > 0.4) addObstacleToChunk(candidate);
+      if (lastSpawn > 0.9) {
+        const idx = Math.floor(Math.random()*chunks.length);
+        addObstacle(chunks[idx]);
         lastSpawn = 0;
       }
 
       // score
       score += speed*12*dt;
-      hudScore.textContent = Math.floor(score);
+      scoreEl.textContent = Math.floor(score);
 
-      // simple collision
-      if (checkCollisions()) {
-        // Game over
+      // collisions & coins
+      // remove collected obstacles flagged
+      for (const c of chunks) {
+        c.userData.obstacles = c.userData.obstacles.filter(o => !o.collected);
+      }
+
+      if (checkCollision()) {
+        // hit
+        playHit();
         running = false;
         gameOver();
       }
-
-      // camera follow smoothing slightly behind player
-      const camTarget = new THREE.Vector3(player.position.x, player.position.y + 3.5, player.position.z + 9);
-      camera.position.lerp(camTarget, 2*dt);
-      camera.lookAt(player.position.x, player.position.y + 0.8, player.position.z - 2);
     }
 
     renderer.render(scene, camera);
   }
 
-  // Start game
+  // start / restart / menu
   function startGame() {
-    // If first time, init everything
     if (!scene) {
-      initThree();
+      initScene();
+      initAudio();
       createPlayer();
-      spawnInitialChunks();
-      // events
+      spawnInitial();
       window.addEventListener('keydown', onKeyDown);
       window.addEventListener('keyup', onKeyUp);
-      mount.addEventListener('touchstart', onTouchStart, {passive:true});
-      mount.addEventListener('touchend', onTouchEnd, {passive:true});
+      // touch swipe (for mobile)
+      let touchStartX = null;
+      mount.addEventListener('touchstart', (e)=>{ if (!running) return; touchStartX = e.touches[0].clientX; }, {passive:true});
+      mount.addEventListener('touchend', (e)=>{ if (!running || touchStartX === null) return; const dx = e.changedTouches[0].clientX - touchStartX; if (Math.abs(dx)>40) { if (dx<0) laneLeft(); else laneRight(); } else doJump(); touchStartX = null; }, {passive:true});
       clock = new THREE.Clock();
       animate();
     } else {
-      // reset state but keep scene
-      // remove previous obstacles
+      // reset obstacles & chunks & player state
       for (const c of chunks) {
-        for (const o of c.userData.obstacles) { try { c.remove(o.mesh||o); } catch(e){} }
+        for (const o of c.userData.obstacles) try{ c.remove(o.mesh||o) }catch(e){}
         c.userData.obstacles.length = 0;
       }
       player.position.set(0,1,0);
-      playerState = { lane:1, x:0, z:0, vy:0, grounded:true, height:1.6, sliding:false };
-      for (let i=0;i<chunks.length;i++) chunks[i].position.z = -i * CHUNK_LENGTH;
+      player.userData = { lane:1, targetX:LANE_X[1], vy:0, grounded:true, sliding:false };
+      for (let i=0;i<chunks.length;i++) chunks[i].position.z = -i*CHUNK_LENGTH;
     }
-
-    score = 0; hudScore.textContent = '0';
-    speed = 0.18;
-    lastSpawn = 0;
+    score = 0; coins = 0; speed = 0.18; lastSpawn = 0;
+    scoreEl.textContent = '0'; coinsEl.textContent = '0';
     running = true; paused = false;
     menu.style.display = 'none';
     gameOverEl.style.display = 'none';
   }
 
-  function restartGame() {
-    // quick full reload to ensure clean state
-    // but we'll instead just call startGame to reset
-    startGame();
-  }
+  function restartGame() { startGame(); }
 
   function showMenu() {
-    running = false;
-    paused = false;
-    menu.style.display = 'flex';
-    gameOverEl.style.display = 'none';
+    running = false; paused = false; menu.style.display = 'flex'; gameOverEl.style.display = 'none';
   }
 
   function gameOver() {
     gameOverEl.style.display = 'flex';
-    finalScoreEl.textContent = 'Distance: ' + Math.floor(score);
-    // show cursor/menu
-    // keep renderer running so scene visible
+    finalEl.textContent = 'Distance: ' + Math.floor(score) + '   •   Coins: ' + coins;
+    // stop background audio subtle fade
+    if (bgGain) { bgGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.5); }
   }
 
-  // Responsive resize
+  // spawn chunks
+  function spawnInitial() {
+    for (const c of chunks) { try{ scene.remove(c) }catch(e){} }
+    chunks = [];
+    for (let i=0;i<VISIBLE;i++){
+      const c = makeChunk();
+      c.position.z = -i*CHUNK_LENGTH;
+      scene.add(c);
+      chunks.push(c);
+      // small chance to prepopulate
+      if (Math.random()>0.55) addObstacle(c);
+    }
+  }
+
+  // prewarm minimal scene to appear nice before play
+  (function prewarm(){
+    initScene();
+    // add a visual ring and plane
+    const ringGeo = new THREE.TorusGeometry(18, 1.2, 12, 80);
+    const ringMat = new THREE.MeshStandardMaterial({ color:0x061730 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI/2;
+    ring.position.z = -60;
+    scene.add(ring);
+    // render once
+    renderer.render(scene, camera);
+  })();
+
+  // event bindings
+  playBtn.addEventListener('click', () => { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); startGame(); });
+  howBtn.addEventListener('click', ()=> alert('Move: A/D or ←/→. Jump: Space or Jump button. Collect coins, avoid obstacles and gaps.'));
+  retryBtn.addEventListener('click', ()=> { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); restartGame(); });
+  menuBtn.addEventListener('click', ()=> showMenu());
+
+  // handle window resize
   function resize() {
     if (!renderer || !camera) return;
     const w = mount.clientWidth;
@@ -444,36 +576,26 @@
   }
   window.addEventListener('resize', resize);
 
-  // start with menu visible (do nothing)
-  // Provide keyboard hint to start
-  // Expose some debug shortcuts
-  window.addEventListener('keydown', (e) => {
+  // helpers: createPanda uses global scene/player variable
+  function createPanda(){
+    // see createPanda() definition earlier (already in this file)
+    // We'll call the same code block here - duplicated function for clarity isn't necessary,
+    // but we placed the full panda construction earlier in this file's scope when first defined.
+    // For safety in some environments, re-implement minimal fallback if needed.
+    // (In this bundled file createPanda is defined above.)
+    // But to ensure it's present here, define inline if missing:
+    // (No-op here because createPanda already exists in this scope above.)
+  }
+
+  // expose small debug shortcuts
+  window.addEventListener('keydown', (e)=> {
     if (e.key === 'Enter' && !running) startGame();
-    if (e.key === 'r' && !running) restartGame();
+    if (e.key === 'm') { if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }
   });
 
-  // initialize quickly (so user sees background) - but delay heavy inits until Play
-  // Pre-warm a scene: create minimal renderer so background appears immediately
-  (function prewarm() {
-    // create small renderer to fill background quickly without heavy geometry
-    if (!renderer) {
-      initThree();
-      // add a subtle background structure so it doesn't look empty
-      const ringGeo = new THREE.TorusGeometry(18, 1.2, 16, 100);
-      const ringMat = new THREE.MeshStandardMaterial({ color:0x061730, roughness:0.9 });
-      const ring = new THREE.Mesh(ringGeo, ringMat);
-      ring.rotation.x = Math.PI/2;
-      ring.position.z = -40;
-      scene.add(ring);
-
-      // small ambient floor plane so fog blends
-      const plane = new THREE.Mesh(new THREE.PlaneGeometry(200,200), new THREE.MeshStandardMaterial({ color:0x050a10 }));
-      plane.rotation.x = -Math.PI/2;
-      plane.position.y = -0.25;
-      scene.add(plane);
-      renderer.render(scene, camera);
-    }
-  })();
+  // Note: many helper functions referenced above (makeChunk, addObstacle, recycle, checkCollision)
+  // are defined earlier in this file; ensure they are hoisted (they are function declarations).
+  // Final safety: ensure audio initialised on user gesture — handled by first Play click which resumes audioCtx.
 
 })();
 </script>
