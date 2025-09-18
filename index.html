@@ -1,263 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Space Collector — Single-file HTML5 Game</title>
-  <style>
-    :root{--bg:#0b1020;--panel:#0f1724;--accent:#69f0ae;--danger:#ff6b6b}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-    .wrap{display:grid;height:100%;place-items:center;background:radial-gradient(circle at 10% 10%, rgba(105,240,174,0.06), transparent 10%),var(--bg);}
-    canvas{background:linear-gradient(180deg,#071020 0%, #0b1020 100%);border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.7)}
-    .ui{position:absolute;top:18px;left:18px;color:#c9d6ff;font-size:14px}
-    .ui .score{font-weight:700;color:var(--accent)}
-    .panel{position:absolute;right:18px;top:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:8px;color:#bcd3ff;font-size:13px}
-    .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:22px;border-radius:12px;max-width:560px;color:#e6f0ff;text-align:center;box-shadow:0 12px 40px rgba(2,6,23,0.6)}
-    .card h1{margin:0 0 8px;font-size:20px}
-    .card p{margin:6px 0 14px;color:#b4c6ff}
-    .btn{background:var(--accent);color:#042028;padding:10px 16px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
-    .muted{opacity:0.8;font-size:13px}
-    footer{position:absolute;left:18px;bottom:18px;color:#9fb2ff;font-size:12px}
-    @media (max-width:600px){canvas{width:94vw;height:64vh}}
-  </style>
+  <meta charset="UTF-8">
+  <title>3D Game</title>
+  <style>body { margin: 0; overflow: hidden; }</style>
 </head>
 <body>
-  <div class="wrap">
-    <canvas id="game" width="900" height="600"></canvas>
-    <div class="ui">
-      Score: <span class="score" id="score">0</span>
-    </div>
-    <div class="panel" id="panel">
-      Lives: <span id="lives">3</span> • Level: <span id="level">1</span>
-    </div>
-    <div class="overlay" id="overlay">
-      <div class="card" id="startCard">
-        <h1>Space Collector</h1>
-        <p class="muted">Collect energy crystals, avoid asteroids, and survive as long as possible.</p>
-        <p><strong>Controls:</strong> Arrow keys / WASD to move • Space to dash</p>
-        <p class="muted">This is a single-file HTML5 game — drop this file onto your website.</p>
-        <div style="display:flex;gap:8px;justify-content:center">
-          <button class="btn" id="startBtn">Start Game</button>
-          <button class="btn" id="howBtn" style="background:#4f6cff">How to Play</button>
-        </div>
-      </div>
-      <div class="card" id="howCard" style="display:none">
-        <h1>How to Play</h1>
-        <p class="muted">Collect the green crystals to earn points. Each level increases asteroid speed and spawn rate. Use dash (Space) to quickly avoid danger but it has a short cooldown.</p>
-        <p><strong>Dialogue Example:</strong></p>
-        <p class="muted">"Commander — we're picking up energy crystals ahead. Avoid the debris field!"</p>
-        <button class="btn" id="backBtn">Back</button>
-      </div>
-    </div>
-    <footer>Embed: upload this single file to your web host and visit it.</footer>
-  </div>
-
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script>
-    // ======= Simple Space Collector Game =======
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    let W = canvas.width, H = canvas.height;
+    // Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-    // Responsive scaling
-    function resize(){
-      const rect = canvas.getBoundingClientRect();
-      W = canvas.width = rect.width || 900;
-      H = canvas.height = rect.height || 600;
+    // Cube
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+
+    camera.position.z = 5;
+
+    // Animate
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
+      renderer.render(scene, camera);
     }
-    window.addEventListener('resize', resize);
-    resize();
-
-    // UI elements
-    const scoreEl = document.getElementById('score');
-    const livesEl = document.getElementById('lives');
-    const levelEl = document.getElementById('level');
-
-    // Overlay controls
-    const overlay = document.getElementById('overlay');
-    const startBtn = document.getElementById('startBtn');
-    const howBtn = document.getElementById('howBtn');
-    const startCard = document.getElementById('startCard');
-    const howCard = document.getElementById('howCard');
-    const backBtn = document.getElementById('backBtn');
-
-    howBtn.onclick = ()=>{startCard.style.display='none'; howCard.style.display='block'}
-    backBtn.onclick = ()=>{howCard.style.display='none'; startCard.style.display='block'}
-
-    // game state
-    let keys = {};
-    let player, asteroids, crystals, particles;
-    let score=0, lives=3, level=1, spawnTimer=0, spawnInterval=120, gameRunning=false;
-    let dashCooldown=0;
-
-    // utilities
-    function rand(min,max){return Math.random()*(max-min)+min}
-    function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-
-    // Entities
-    function createPlayer(){
-      return {x:W/2,y:H-100,r:18,dx:0,dy:0,speed:3,dash:0}
-    }
-
-    function spawnAsteroid(){
-      const size = rand(14,44);
-      const x = rand(size, W-size);
-      const y = -size;
-      const vx = rand(-0.6,0.6);
-      const vy = rand(1+level*0.25,2+level*0.6);
-      asteroids.push({x,y,vx,vy,r:size});
-    }
-    function spawnCrystal(){
-      const x = rand(24,W-24);
-      const y = -20;
-      crystals.push({x,y,vy:1.2+level*0.2,r:12,angle:0});
-    }
-
-    // Start / Reset
-    function startGame(){
-      score=0; lives=3; level=1; spawnInterval=120; asteroids=[]; crystals=[]; particles=[]; player=createPlayer(); gameRunning=true; overlay.style.display='none';
-      scoreEl.textContent=score; livesEl.textContent=lives; levelEl.textContent=level;
-      // show opening dialog in console (you can wire this to on-screen chat later)
-      console.log('Navigator: Commander, crystals detected. Collect them!');
-    }
-
-    // Input
-    window.addEventListener('keydown', e=>{keys[e.key.toLowerCase()]=true});
-    window.addEventListener('keyup', e=>{keys[e.key.toLowerCase()]=false});
-
-    // Game loop
-    function update(){
-      if(!gameRunning) return;
-      // player movement
-      let ax=0, ay=0;
-      if(keys['arrowleft']||keys['a']) ax=-1;
-      if(keys['arrowright']||keys['d']) ax=1;
-      if(keys['arrowup']||keys['w']) ay=-1;
-      if(keys['arrowdown']||keys['s']) ay=1;
-      const len = Math.hypot(ax,ay)||1;
-      player.dx = (ax/len)*player.speed;
-      player.dy = (ay/len)*player.speed;
-      player.x += player.dx; player.y += player.dy;
-      // dash
-      if(keys[' '] && dashCooldown<=0){
-        player.x += (player.dx||1)*80; player.y += (player.dy||-1)*80; dashCooldown=90;
-        // create burst particles
-        for(let i=0;i<18;i++) particles.push({x:player.x,y:player.y,vx:rand(-3,3),vy:rand(-3,3),life:40});
-      }
-      dashCooldown = Math.max(0, dashCooldown-1);
-
-      // clamp
-      player.x = Math.max(20, Math.min(W-20, player.x));
-      player.y = Math.max(20, Math.min(H-20, player.y));
-
-      // spawn logic
-      spawnTimer++;
-      if(spawnTimer % Math.max(20, spawnInterval - level*6) === 0) spawnAsteroid();
-      if(spawnTimer % Math.max(60, 160 - level*10) === 0) spawnCrystal();
-
-      // update asteroids
-      for(let i=asteroids.length-1;i>=0;i--){
-        const a = asteroids[i];
-        a.x += a.vx; a.y += a.vy;
-        if(a.y > H + 60) asteroids.splice(i,1);
-        // collision with player
-        if(dist(a, player) < a.r + player.r - 6){
-          // hit
-          lives--; livesEl.textContent=lives;
-          asteroids.splice(i,1);
-          for(let k=0;k<12;k++) particles.push({x:player.x,y:player.y,vx:rand(-4,4),vy:rand(-4,4),life:50});
-          if(lives<=0) endGame();
-        }
-      }
-
-      // crystals
-      for(let i=crystals.length-1;i>=0;i--){
-        const c = crystals[i];
-        c.y += c.vy; c.angle += 0.06;
-        if(c.y > H + 40) crystals.splice(i,1);
-        if(dist(c, player) < c.r + player.r - 6){
-          score += 10 + level*2; scoreEl.textContent = score;
-          crystals.splice(i,1);
-          for(let k=0;k<10;k++) particles.push({x:c.x,y:c.y,vx:rand(-2,2),vy:rand(-2,2),life:36});
-          // level up occasionally
-          if(score > level * 250){ level++; levelEl.textContent = level; spawnInterval = Math.max(40, spawnInterval-8); }
-        }
-      }
-
-      // particles
-      for(let i=particles.length-1;i>=0;i--){
-        const p = particles[i]; p.x += p.vx; p.y += p.vy; p.life--;
-        if(p.life<=0) particles.splice(i,1);
-      }
-    }
-
-    function endGame(){
-      gameRunning=false; overlay.style.display='flex';
-      startCard.innerHTML = `<h1>Game Over</h1><p class="muted">Your score: <strong>${score}</strong></p><p class="muted">"We'll recover the crystals next run, Commander."</p><div style=\"display:flex;gap:8px;justify-content:center\"><button class=\"btn\" id=\"restartBtn\">Play Again</button><button class=\"btn\" id=\"menuBtn\" style=\"background:#4f6cff\">Back to Menu</button></div>`;
-      document.getElementById('restartBtn').onclick = ()=>{startGame();}
-      document.getElementById('menuBtn').onclick = ()=>{location.reload();}
-    }
-
-    function draw(){
-      // background
-      ctx.clearRect(0,0,W,H);
-      // starfield
-      for(let i=0;i<80;i++){
-        const x = (i*37)%W; const y = (i*97)%H; ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(x,y,1,1);
-      }
-
-      // crystals
-      for(const c of crystals){
-        ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.angle);
-        // diamond
-        ctx.beginPath(); ctx.moveTo(0,-c.r); ctx.lineTo(c.r/1.6,0); ctx.lineTo(0,c.r); ctx.lineTo(-c.r/1.6,0); ctx.closePath();
-        ctx.fillStyle='rgba(105,240,174,0.95)'; ctx.fill();
-        ctx.restore();
-      }
-
-      // asteroids
-      for(const a of asteroids){
-        ctx.beginPath(); ctx.ellipse(a.x,a.y,a.r,a.r*0.78,0,0,Math.PI*2);
-        ctx.fillStyle='rgba(140,140,150,0.94)'; ctx.fill();
-        ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.stroke();
-      }
-
-      // player (triangle ship)
-      ctx.save(); ctx.translate(player.x,player.y);
-      ctx.beginPath(); ctx.moveTo(0,-player.r); ctx.lineTo(player.r*0.7,player.r); ctx.lineTo(-player.r*0.7,player.r); ctx.closePath();
-      ctx.fillStyle='rgba(79,108,255,0.95)'; ctx.fill();
-      ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.stroke();
-      ctx.restore();
-
-      // particles
-      for(const p of particles){
-        ctx.fillStyle = `rgba(255,255,255,${p.life/60})`;
-        ctx.fillRect(p.x,p.y,2,2);
-      }
-
-      // HUD small
-      ctx.fillStyle='rgba(255,255,255,0.02)'; ctx.fillRect(0,H-36,W,36);
-    }
-
-    // main loop
-    function loop(){ update(); draw(); requestAnimationFrame(loop); }
-    loop();
-
-    // Start button
-    startBtn.onclick = ()=> startGame();
-
-    // Accessibility: click canvas to focus
-    canvas.onclick = ()=> canvas.focus();
-
-    // allow embedding on other pages via iframe: prevent accidental navigation
-    if(window.top !== window.self){ document.body.style.background='transparent' }
-
-    // small touch support: on mobile, add on-screen joystick (simple)
-    let touchStart = null;
-    canvas.addEventListener('touchstart', e=>{ const t=e.touches[0]; touchStart = {x:t.clientX,y:t.clientY}; });
-    canvas.addEventListener('touchmove', e=>{ if(!touchStart) return; const t=e.touches[0]; const dx = t.clientX - touchStart.x; const dy = t.clientY - touchStart.y; keys['arrowleft']=dx<-10; keys['arrowright']=dx>10; keys['arrowup']=dy<-10; keys['arrowdown']=dy>10; });
-    canvas.addEventListener('touchend', e=>{ touchStart=null; keys={}; });
-
+    animate();
   </script>
 </body>
 </html>
+
