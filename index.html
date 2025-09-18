@@ -1,102 +1,360 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Cube Dodger 3D</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
-  </style>
-</head>
-<body>
-  <!-- Three.js library -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <script>
-    // Scene, Camera, Renderer
+import React, { useRef, useEffect, useState } from "react";
+import * as THREE from "three";
+
+// The Last Run - Pro Prototype
+// Single-file React component using Three.js. Tailwind classes used for styling.
+// Features:
+// - Main menu with Play / Character selection / Difficulty
+// - In-game HUD: score, pause, restart
+// - Procedural chunk spawning (endless runner style)
+// - Player cube with left/right/jump and camera follow
+// - Difficulty settings affect speed & spawn rate
+
+export default function TheLastRunPro() {
+  const mountRef = useRef(null);
+  const sceneRef = useRef(null);
+  const rendererRef = useRef(null);
+  const cameraRef = useRef(null);
+  const playerRef = useRef(null);
+  const chunksRef = useRef([]);
+  const animRef = useRef(null);
+
+  // UI state
+  const [started, setStarted] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [score, setScore] = useState(0);
+  const [difficulty, setDifficulty] = useState("medium"); // easy, medium, hard
+  const [character, setCharacter] = useState(0); // index for character color/style
+  const [speedMultiplier, setSpeedMultiplier] = useState(1);
+
+  // Gameplay params (will map from difficulty)
+  const paramsRef = useRef({ baseSpeed: 0.12, spawnInterval: 1.0 });
+
+  useEffect(() => {
+    // map difficulty to params
+    const map = {
+      easy: { baseSpeed: 0.08, spawnInterval: 1.4, gravity: 0.02 },
+      medium: { baseSpeed: 0.12, spawnInterval: 1.0, gravity: 0.025 },
+      hard: { baseSpeed: 0.18, spawnInterval: 0.75, gravity: 0.03 },
+    };
+    paramsRef.current = map[difficulty] || map.medium;
+    setSpeedMultiplier(map[difficulty].baseSpeed / 0.12);
+  }, [difficulty]);
+
+  useEffect(() => {
+    // init three scene
+    const width = mountRef.current.clientWidth;
+    const height = mountRef.current.clientHeight;
+
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    scene.background = new THREE.Color(0x05060a);
+    sceneRef.current = scene;
+
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+    camera.position.set(0, 3.5, 7);
+    cameraRef.current = camera;
+
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    renderer.setSize(width, height);
+    renderer.shadowMap.enabled = true;
+    mountRef.current.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
 
-    // Lighting
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5, 10, 7.5);
-    scene.add(light);
+    // lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.35);
+    scene.add(ambient);
+    const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+    dir.position.set(5, 10, 7);
+    dir.castShadow = true;
+    scene.add(dir);
 
-    // Player Cube
-    const cubeGeo = new THREE.BoxGeometry();
-    const cubeMat = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(cubeGeo, cubeMat);
-    scene.add(cube);
-    cube.position.y = 0.5;
+    // player (cube or character placeholder)
+    const playerGeo = new THREE.BoxGeometry(1, 1.8, 1);
+    const colors = [0x00ff88, 0x8899ff, 0xffdd55, 0xff7b7b];
+    const mat = new THREE.MeshStandardMaterial({ color: colors[character] });
+    const player = new THREE.Mesh(playerGeo, mat);
+    player.castShadow = true;
+    player.position.set(0, 1, 0);
+    scene.add(player);
+    playerRef.current = player;
 
-    // Floor
-    const floorGeo = new THREE.PlaneGeometry(20, 20);
-    const floorMat = new THREE.MeshStandardMaterial({ color: 0x555555 });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.rotation.x = -Math.PI / 2;
-    scene.add(floor);
-
-    // Enemy
-    const enemyGeo = new THREE.SphereGeometry(0.5, 32, 32);
-    const enemyMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-    const enemy = new THREE.Mesh(enemyGeo, enemyMat);
-    scene.add(enemy);
-    enemy.position.set(3, 0.5, -5);
-
-    // Camera position
-    camera.position.set(0, 5, 10);
-    camera.lookAt(0, 0, 0);
-
-    // Controls
-    const keys = {};
-    document.addEventListener("keydown", (e) => keys[e.key] = true);
-    document.addEventListener("keyup", (e) => keys[e.key] = false);
-
-    function moveCube() {
-      if (keys["ArrowUp"]) cube.position.z -= 0.1;
-      if (keys["ArrowDown"]) cube.position.z += 0.1;
-      if (keys["ArrowLeft"]) cube.position.x -= 0.1;
-      if (keys["ArrowRight"]) cube.position.x += 0.1;
+    // floor chunk pool
+    const chunkPool = [];
+    const chunkCount = 12; // how many chunks to keep
+    for (let i = 0; i < chunkCount; i++) {
+      const mesh = createChunk();
+      mesh.position.z = -i * 10; // lay out ahead
+      scene.add(mesh);
+      chunkPool.push(mesh);
     }
+    chunksRef.current = chunkPool;
 
-    // Enemy movement
-    let enemySpeed = 0.05;
-    function moveEnemy() {
-      enemy.position.z += enemySpeed;
-      if (enemy.position.z > 5) {
-        enemy.position.z = -10;
-        enemy.position.x = (Math.random() - 0.5) * 10; // random X
+    // ground light helper (not visible)
+    // controls state
+    const input = { left: false, right: false, jump: false };
+
+    // keyboard handlers
+    function keyDown(e) {
+      if (e.key === "ArrowLeft" || e.key === "a") input.left = true;
+      if (e.key === "ArrowRight" || e.key === "d") input.right = true;
+      if (e.key === " " || e.key === "Spacebar") input.jump = true;
+      if (e.key === "p") setPaused((p) => !p);
+    }
+    function keyUp(e) {
+      if (e.key === "ArrowLeft" || e.key === "a") input.left = false;
+      if (e.key === "ArrowRight" || e.key === "d") input.right = false;
+      if (e.key === " " || e.key === "Spacebar") input.jump = false;
+    }
+    window.addEventListener("keydown", keyDown);
+    window.addEventListener("keyup", keyUp);
+
+    // player physics
+    const playerState = {
+      vy: 0,
+      grounded: true,
+      lane: 0, // -1 left, 0 center, 1 right; we'll allow smooth movement
+      x: 0,
+      z: 0,
+    };
+
+    // spawning control
+    let lastSpawn = 0;
+    let elapsed = 0;
+
+    // scoring
+    let internalScore = 0;
+
+    function animate(t) {
+      animRef.current = requestAnimationFrame(animate);
+      if (paused || !started) {
+        renderer.render(scene, camera);
+        return;
       }
-    }
 
-    // Collision check
-    function checkCollision() {
-      const distance = cube.position.distanceTo(enemy.position);
-      if (distance < 1) {
-        alert("💀 Game Over! Refresh to play again.");
-        cube.position.set(0, 0.5, 0);
-        enemy.position.set(3, 0.5, -5);
+      const dt = 0.016; // fixed step approx 60fps
+      elapsed += dt;
+      internalScore += paramsRef.current.baseSpeed * 10 * dt; // distance-based scoring
+      setScore(Math.floor(internalScore));
+
+      // player horizontal movement smooth
+      const strafeSpeed = 6 * dt * (paramsRef.current.baseSpeed / 0.12);
+      if (input.left) playerState.x -= strafeSpeed;
+      if (input.right) playerState.x += strafeSpeed;
+      // clamp lanes
+      if (playerState.x < -3) playerState.x = -3;
+      if (playerState.x > 3) playerState.x = 3;
+
+      // jump
+      if (input.jump && playerState.grounded) {
+        playerState.vy = 0.42;
+        playerState.grounded = false;
       }
-    }
+      // gravity
+      playerState.vy -= paramsRef.current.gravity || 0.025;
+      playerState.x = THREE.MathUtils.lerp(player.position.x, playerState.x, 0.2);
+      player.position.x = playerState.x;
+      player.position.y += playerState.vy;
+      if (player.position.y <= 1) {
+        player.position.y = 1;
+        playerState.vy = 0;
+        playerState.grounded = true;
+      }
 
-    // Animate Loop
-    function animate() {
-      requestAnimationFrame(animate);
-      moveCube();
-      moveEnemy();
-      checkCollision();
+      // move chunks towards player (simulate forward movement)
+      const move = paramsRef.current.baseSpeed * (1 + score / 2000); // slight speedup with score
+      for (let i = 0; i < chunksRef.current.length; i++) {
+        const c = chunksRef.current[i];
+        c.position.z += move;
+      }
+
+      // recycle chunks that pass player
+      for (let i = 0; i < chunksRef.current.length; i++) {
+        const c = chunksRef.current[i];
+        if (c.position.z > 10) {
+          // move to far ahead
+          c.position.z = -((chunksRef.current.length - 1) * 10) - Math.random() * 4;
+          randomizeChunk(c);
+        }
+      }
+
+      // simple collision detection with obstacles inside chunks
+      for (let i = 0; i < chunksRef.current.length; i++) {
+        const c = chunksRef.current[i];
+        // each chunk stores obstacles in userData
+        if (c.userData.obstacles) {
+          for (let obs of c.userData.obstacles) {
+            const worldPos = obs.getWorldPosition(new THREE.Vector3());
+            const dist = worldPos.distanceTo(player.position);
+            if (dist < 1.2) {
+              // hit
+              setPaused(true);
+              setStarted(false);
+              // stop animation - game over handled by UI
+            }
+          }
+        }
+      }
+
+      // camera follow (slightly behind & above the player)
+      const desiredCamPos = new THREE.Vector3(player.position.x, player.position.y + 2.5, player.position.z + 7);
+      camera.position.lerp(desiredCamPos, 0.12);
+      camera.lookAt(new THREE.Vector3(player.position.x, player.position.y + 1, player.position.z - 2));
+
       renderer.render(scene, camera);
     }
+
+    // start animation loop
     animate();
 
-    // Resize handler
-    window.addEventListener("resize", () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
-</html>
+    // cleanup on unmount
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("keydown", keyDown);
+      window.removeEventListener("keyup", keyUp);
+      mountRef.current.removeChild(renderer.domElement);
+      renderer.dispose();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [character, started, paused]);
+
+  // helpers for chunk creation and randomization
+  function createChunk() {
+    const g = new THREE.BoxGeometry(10, 0.5, 10);
+    const m = new THREE.MeshStandardMaterial({ color: 0x1a1a2b });
+    const mesh = new THREE.Mesh(g, m);
+    mesh.receiveShadow = true;
+    mesh.userData = { obstacles: [] };
+    // add side walls
+    const wallGeo = new THREE.BoxGeometry(10, 3, 0.5);
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x0f1724 });
+    const left = new THREE.Mesh(wallGeo, wallMat);
+    left.position.set(-5.25, 1.5, 0);
+    mesh.add(left);
+    const right = new THREE.Mesh(wallGeo, wallMat);
+    right.position.set(5.25, 1.5, 0);
+    mesh.add(right);
+    return mesh;
+  }
+
+  function randomizeChunk(chunk) {
+    // clear previous obstacles
+    for (let obs of chunk.userData.obstacles || []) {
+      chunk.remove(obs);
+    }
+    chunk.userData.obstacles = [];
+
+    // choose a random layout
+    const layout = Math.random();
+    // floor color variation
+    chunk.material.color.setHex(0x1a1a2b + Math.floor(Math.random() * 0x003333));
+
+    // add gaps (rare), obstacles (common), or sparks (rare)
+    if (layout < 0.12) {
+      // gap (create hole) - we scale geometry small to fake a gap
+      chunk.scale.x = 1;
+      chunk.scale.z = 1;
+      // place a gap by adding an obstacle that is a trench - use mesh that player can fall into visually but still collide lower
+      const trench = new THREE.Mesh(new THREE.BoxGeometry(6, 0.1, 4), new THREE.MeshStandardMaterial({ color: 0x000000 }));
+      trench.position.set((Math.random() - 0.5) * 3, -0.2, (Math.random() - 0.5) * 4);
+      chunk.add(trench);
+      chunk.userData.obstacles.push(trench);
+    } else if (layout < 0.6) {
+      // obstacles
+      const count = 1 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < count; i++) {
+        const ox = (Math.random() - 0.5) * 6;
+        const oz = (Math.random() - 0.5) * 6;
+        const obs = new THREE.Mesh(new THREE.BoxGeometry(1 + Math.random() * 1.5, 1 + Math.random() * 2, 1 + Math.random()), new THREE.MeshStandardMaterial({ color: 0xff3333 }));
+        obs.position.set(ox, 0.5, oz);
+        chunk.add(obs);
+        chunk.userData.obstacles.push(obs);
+      }
+    } else {
+      // electrical sparks - represented as small glowing orbs
+      const orb = new THREE.Mesh(new THREE.SphereGeometry(0.25, 8, 8), new THREE.MeshStandardMaterial({ emissive: 0xffaa22, emissiveIntensity: 1 }));
+      orb.position.set((Math.random() - 0.5) * 6, 0.75, (Math.random() - 0.5) * 6);
+      chunk.add(orb);
+      chunk.userData.obstacles.push(orb);
+    }
+  }
+
+  // UI handlers
+  function handleStart() {
+    setScore(0);
+    setPaused(false);
+    setStarted(true);
+  }
+  function handleRestart() {
+    // naive restart - reload scene by toggling state; better approach would reset internals
+    window.location.reload();
+  }
+
+  // character options
+  const characterOptions = [
+    { name: "Runner A", color: "#00ff88" },
+    { name: "Runner B", color: "#8899ff" },
+    { name: "Runner C", color: "#ffdd55" },
+    { name: "Runner D", color: "#ff7b7b" },
+  ];
+
+  return (
+    <div className="w-screen h-screen flex">
+      {/* canvas mount */}
+      <div ref={mountRef} className="flex-1" style={{ position: "relative" }} />
+
+      {/* HUD / Menu overlay */}
+      <div className="absolute left-6 top-6 w-80 text-white">
+        {!started ? (
+          <div className="bg-black/60 p-4 rounded-lg backdrop-blur-md">
+            <h1 className="text-2xl font-bold mb-2">The Last Run</h1>
+            <p className="text-sm mb-4">Escape the collapsing Odyssey. Run, jump, slide — survive as long as you can.</p>
+
+            <div className="mb-3">
+              <label className="block text-xs">Character</label>
+              <div className="flex gap-2 mt-2">
+                {characterOptions.map((c, i) => (
+                  <button key={i} onClick={() => setCharacter(i)} className={`p-2 rounded-md border ${character===i?"border-white":"border-gray-600"}`}>
+                    <div style={{ width: 32, height: 32, background: c.color }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-xs">Difficulty</label>
+              <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full mt-2 bg-black/40 p-2 rounded">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+
+            <div className="flex gap-2">
+              <button className="flex-1 bg-green-600 hover:bg-green-500 p-2 rounded" onClick={handleStart}>Play</button>
+              <button className="flex-1 bg-gray-700 p-2 rounded" onClick={() => alert('Share feature coming soon')}>Share</button>
+            </div>
+
+            <div className="text-xs text-gray-300 mt-3">Controls: A/D or ←/→ to move, Space to jump, P to pause.</div>
+          </div>
+        ) : (
+          <div className="bg-black/40 p-3 rounded-lg">
+            <div className="flex justify-between items-center">
+              <div>
+                <div className="text-sm">Distance</div>
+                <div className="text-2xl font-mono">{score}</div>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setPaused(p => !p)} className="bg-yellow-600 p-2 rounded">{paused ? 'Resume' : 'Pause'}</button>
+                <button onClick={handleRestart} className="bg-red-600 p-2 rounded">Restart</button>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-gray-300">Difficulty: {difficulty}</div>
+          </div>
+        )}
+      </div>
+
+      {/* bottom-right small footer */}
+      <div className="absolute right-6 bottom-6 text-white text-sm bg-black/40 p-2 rounded">Prototype • Build: Procedural Chunks • Characters: {characterOptions[character].name}</div>
+    </div>
+  );
+}
